@@ -24,7 +24,7 @@ export default function RootLayout({
           font.className,
           "bg-white dark:bg-[#313338]"
         )}>
-          <ThemeProvider attribute='class' defaultTheme='system' enableSystem storageKey='discord-clone-theme'>
+          <ThemeProvider attribute='class' defaultTheme='dark' enableSystem={false} storageKey='discord-clone-theme'>
             {children}
           </ThemeProvider>
         </body>

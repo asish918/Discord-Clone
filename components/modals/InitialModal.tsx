@@ -1,8 +1,9 @@
-'use client'
+"use client";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 import {
     Dialog,
@@ -10,7 +11,7 @@ import {
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle
+    DialogTitle,
 } from "@/components/ui/dialog";
 
 import {
@@ -19,46 +20,55 @@ import {
     FormField,
     FormItem,
     FormLabel,
-    FormMessage
+    FormMessage,
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import FileUpload from "@/components/FileUpload";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
     name: z.string().min(1, {
-        message: "Server name is required."
+        message: "Server name is required.",
     }),
     imageUrl: z.string().min(1, {
-        message: "Server Image is required."
-    })
-})
+        message: "Server Image is required.",
+    }),
+});
 
 const InitialModal = () => {
     const [isMounted, setIsMounted] = useState(false);
 
+    const router = useRouter();
+
     useEffect(() => {
         setIsMounted(true);
-    }, [])
+    }, []);
 
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
             imageUrl: "",
-        }
+        },
     });
 
     const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values);
-    }
+        try {
+            await axios.post("/api/servers", values);
+            form.reset();
+            router.refresh();
+            window.location.reload();
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-    if (!isMounted)
-        return null;
+    if (!isMounted) return null;
 
     return (
         <Dialog open>
@@ -68,7 +78,8 @@ const InitialModal = () => {
                         Customize your server.
                     </DialogTitle>
                     <DialogDescription className="text-center text-zinc-500">
-                        Give your server a personality with a name and an image. You can always change it later.
+                        Give your server a personality with a name and an image. You can
+                        always change it later.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -97,7 +108,9 @@ const InitialModal = () => {
                                 name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">Server Name</FormLabel>
+                                        <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
+                                            Server Name
+                                        </FormLabel>
                                         <FormControl>
                                             <Input
                                                 disabled={isLoading}
@@ -121,7 +134,7 @@ const InitialModal = () => {
                 </Form>
             </DialogContent>
         </Dialog>
-    )
-}
+    );
+};
 
 export default InitialModal;

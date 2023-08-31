@@ -33,7 +33,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useModal } from "@/hooks/useModalStore";
 import { ChannelType } from "@prisma/client";
@@ -51,19 +51,29 @@ const formSchema = z.object({
 });
 
 const CreateChannelModal = () => {
-    const { isOpen, onClose, type } = useModal();
+    const { isOpen, onClose, type, data } = useModal();
     const router = useRouter();
     const params = useParams();
 
     const isModalOpen = isOpen && type === "createChannel";
+    const { channelType } = data;
 
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            type: ChannelType.TEXT,
+            type: channelType || ChannelType.TEXT,
         },
     });
+
+    useEffect(() => {
+        if (channelType) {
+            form.setValue("type", channelType);
+        }
+        else
+            form.setValue("type", ChannelType.TEXT)
+        console.log(channelType);
+    }, [channelType, form]);
 
     const isLoading = form.formState.isSubmitting;
 
